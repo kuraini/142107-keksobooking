@@ -1,7 +1,7 @@
 # Личный проект «Кексобукинг» [![Build status][travis-image]][travis-url]
 
 * Студент: [Svetlana Borisova](https://up.htmlacademy.ru/javascript/11/user/142107).
-* Наставник: `Неизвестно`.
+* Наставник: [Иван Долгов](https://htmlacademy.ru/profile/id322523).
 
 ---
 
