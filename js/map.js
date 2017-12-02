@@ -15,8 +15,8 @@ var CHECKINS = ['12:00', '13:00', '14:00'];
 var CHECKOUTS = ['12:00', '13:00', '14:00'];
 var FEATURES = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
 var AVATARS = [1, 2, 3, 4, 5, 6, 7, 8];
-// var ESC_KEYCODE = 27;
-// var ENTER_KEYCODE = 13;
+var ESC_KEYCODE = 27;
+var ENTER_KEYCODE = 13;
 
 function getRandomInRange(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -221,8 +221,8 @@ function getClassActive(node) {
 }
 
 function onMapPinClick(evt) {
-  var target = evt.target;
-  if (target.tagName !== 'BUTTON' || target.classList.contains('map__pin--main')) {
+  var target = evt.target.closest('.map__pin');
+  if (!target || target.classList.contains('map__pin--main')) {
     return;
   }
 
@@ -238,6 +238,43 @@ function onMapPinClick(evt) {
 
   var newPopup = map.querySelector('.popup');
   newPopup.classList.remove('hidden');
+
+  var popupClose = newPopup.querySelector('.popup__close');
+
+  function onPopupEscPress(e) {
+    if (e.keyCode === ESC_KEYCODE) {
+      closePopup();
+    }
+  }
+
+  function openPopup() {
+    map.insertBefore(makeCard(advertisments[pinId]), filtersContainer);
+    newPopup.classList.remove('hidden');
+    document.addEventListener('keydown', onPopupEscPress);
+  }
+
+  function closePopup() {
+    map.removeChild(newPopup);
+    target.classList.remove('map__pin--active');
+    document.removeEventListener('keydown', onPopupEscPress);
+  }
+
+  popupClose.addEventListener('click', closePopup);
+
+  popupClose.addEventListener('keydown', function (e) {
+    if (e.keyCode === ENTER_KEYCODE) {
+      closePopup();
+    }
+  });
+
+  target.addEventListener('keydown', function (e) {
+    if (e.keyCode === ENTER_KEYCODE) {
+      openPopup();
+    }
+  });
+
+  document.addEventListener('keydown', onPopupEscPress);
+
 }
 
 mapPinsContainer.addEventListener('click', onMapPinClick);
