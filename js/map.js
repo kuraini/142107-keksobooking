@@ -15,8 +15,12 @@ var CHECKINS = ['12:00', '13:00', '14:00'];
 var CHECKOUTS = ['12:00', '13:00', '14:00'];
 var FEATURES = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
 var AVATARS = [1, 2, 3, 4, 5, 6, 7, 8];
+var PIN_HEIGHT = 44;
+var PIN_PSEUDO_HEIGHT = 18;
+var PIN_HEIGHT_IN_PROCENT = 100;
 var ESC_KEYCODE = 27;
 var ENTER_KEYCODE = 13;
+var PIN_TRANSITION = Math.floor((PIN_PSEUDO_HEIGHT * 100 / PIN_HEIGHT) + PIN_HEIGHT_IN_PROCENT);
 
 function getRandomInRange(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -108,7 +112,7 @@ function renderPin(pin) {
   var pinElement = mapPinTemplate.cloneNode(true);
   var pinAvatar = pinElement.querySelector('img');
 
-  pinElement.setAttribute('style', 'left: ' + pin.location.x + 'px; ' + 'top: ' + pin.location.y + 'px;');
+  pinElement.setAttribute('style', 'left: ' + pin.location.x + 'px; ' + 'top: ' + pin.location.y + 'px; ' + 'transform: translate(-50%, -' + PIN_TRANSITION + '%);');
   pinElement.setAttribute('hidden', 'hidden');
   pinAvatar.setAttribute('src', pin.author.avatar);
 
@@ -204,7 +208,7 @@ function onMapPinMainMouseup() {
   map.classList.remove('map--faded');
   removeAttributeAll(pins, 'hidden');
   form.classList.remove('notice__form--disabled');
-  removeAttributeAll(fieldsets, 'hidden');
+  removeAttributeAll(fieldsets, 'disabled');
   mapPinMain.removeEventListener('mouseup', onMapPinMainMouseup);
 }
 
@@ -274,7 +278,142 @@ function onMapPinClick(evt) {
   });
 
   document.addEventListener('keydown', onPopupEscPress);
-
 }
 
 mapPinsContainer.addEventListener('click', onMapPinClick);
+
+var titleInput = form.querySelector('#title');
+var addressInput = form.querySelector('#address');
+var typeSelect = form.querySelector('#type');
+var priceInput = form.querySelector('#price');
+var timeinSelect = form.querySelector('#timein');
+var timeoutSelect = form.querySelector('#timeout');
+var roomSelect = form.querySelector('#room_number');
+var capacitySelect = form.querySelector('#capacity');
+var formSubmit = form.querySelector('.form__submit');
+
+var minPrices = {
+  'flat': 1000,
+  'bungalo': 0,
+  'house': 5000,
+  'palace': 10000
+};
+
+function getMinPrices() {
+  if (typeSelect.value === 'flat') {
+    priceInput.setAttribute('min', minPrices.flat);
+  }
+  if (typeSelect.value === 'bungalo') {
+    priceInput.setAttribute('min', minPrices.bungalo);
+  }
+  if (typeSelect.value === 'house') {
+    priceInput.setAttribute('min', minPrices.house);
+  }
+  if (typeSelect.value === 'palace') {
+    priceInput.setAttribute('min', minPrices.palace);
+  }
+}
+
+function synchronizeValue(selected, selectable) {
+  var children = selectable.children;
+  for (var i = 0; i < children.length; i++) {
+    if (selected.value === children[i].value) {
+      children[i].selected = true;
+    }
+  }
+}
+
+function getInvalidFieldsBorderRed(elem) {
+  var elements = elem.querySelectorAll('input, select, textarea');
+  for (var i = 0; i < elements.length; i++) {
+    if (elements[i].validity.valid === false) {
+      elements[i].setAttribute('style', 'border-color: red;');
+    }
+  }
+}
+
+titleInput.addEventListener('invalid', function () {
+  if (titleInput.validity.tooShort) {
+    titleInput.setCustomValidity('Заголовок должен состоять минимум из 30-ти символов');
+  } else if (titleInput.validity.tooLong) {
+    titleInput.setCustomValidity('Заголовок не должен превышать 100 символов');
+  } else if (titleInput.validity.valueMissing) {
+    titleInput.setCustomValidity('Обязательное поле');
+  } else {
+    titleInput.setCustomValidity('');
+  }
+});
+
+titleInput.addEventListener('input', function (evt) {
+  var target = evt.target;
+  if (target.value.length < 2) {
+    target.setCustomValidity('Заголовок должен состоять минимум из 30-ти символов');
+  } else {
+    target.setCustomValidity('');
+  }
+});
+
+addressInput.addEventListener('invalid', function () {
+  if (addressInput.validity.valueMissing) {
+    addressInput.setCustomValidity('Обязательное поле');
+  } else {
+    addressInput.setCustomValidity('');
+  }
+});
+
+priceInput.addEventListener('invalid', function () {
+  if (priceInput.validity.rangeUnderflow) {
+    priceInput.setCustomValidity('Минимальная цена не может быть ниже ' + priceInput.min);
+  } else if (priceInput.validity.rangeOverflow) {
+    priceInput.setCustomValidity('Максимальная цена не может превышать 1 000 000');
+  } else if (priceInput.validity.badInput) {
+    priceInput.setCustomValidity('Вводить можно только числа');
+  } else if (priceInput.validity.valueMissing) {
+    priceInput.setCustomValidity('Обязательное поле');
+  } else {
+    priceInput.setCustomValidity('');
+  }
+});
+
+typeSelect.addEventListener('change', function () {
+  getMinPrices();
+});
+
+timeinSelect.addEventListener('change', function () {
+  synchronizeValue(timeinSelect, timeoutSelect);
+});
+
+roomSelect.addEventListener('change', function () {
+  var capacities = capacitySelect.children;
+  if (roomSelect.value === '1') {
+    capacities[0].disabled = true;
+    capacities[1].disabled = true;
+    capacities[2].disabled = false;
+    capacities[3].disabled = true;
+  } else if (roomSelect.value === '2') {
+    capacities[0].disabled = true;
+    capacities[1].disabled = false;
+    capacities[2].disabled = false;
+    capacities[3].disabled = true;
+  } else if (roomSelect.value === '3') {
+    capacities[0].disabled = false;
+    capacities[1].disabled = false;
+    capacities[2].disabled = false;
+    capacities[3].disabled = true;
+  } else {
+    capacities[0].disabled = true;
+    capacities[1].disabled = true;
+    capacities[2].disabled = true;
+    capacities[3].disabled = false;
+  }
+});
+
+formSubmit.addEventListener('click', function () {
+  getInvalidFieldsBorderRed(form);
+});
+
+formSubmit.addEventListener('keydown', function (evt) {
+  if (evt.keyCode === ENTER_KEYCODE) {
+    getInvalidFieldsBorderRed(form);
+  }
+});
