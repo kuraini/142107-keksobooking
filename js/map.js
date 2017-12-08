@@ -283,7 +283,6 @@ function onMapPinClick(evt) {
 mapPinsContainer.addEventListener('click', onMapPinClick);
 
 var titleInput = form.querySelector('#title');
-var addressInput = form.querySelector('#address');
 var typeSelect = form.querySelector('#type');
 var priceInput = form.querySelector('#price');
 var timeinSelect = form.querySelector('#timein');
@@ -315,19 +314,14 @@ function getMinPrices() {
 }
 
 function synchronizeValue(selected, selectable) {
-  var children = selectable.children;
-  for (var i = 0; i < children.length; i++) {
-    if (selected.value === children[i].value) {
-      children[i].selected = true;
-    }
-  }
+  selectable.value = selected.value;
 }
 
-function getInvalidFieldsBorderRed(elem) {
+function colorInvalidFieldsRed(elem) {
   var elements = elem.querySelectorAll('input, select, textarea');
   for (var i = 0; i < elements.length; i++) {
     if (elements[i].validity.valid === false) {
-      elements[i].setAttribute('style', 'border-color: red;');
+      elements[i].setAttribute('style', 'border-color: red; box-shadow: 0 0 0 1px red;');
     }
   }
 }
@@ -346,18 +340,10 @@ titleInput.addEventListener('invalid', function () {
 
 titleInput.addEventListener('input', function (evt) {
   var target = evt.target;
-  if (target.value.length < 2) {
+  if (target.value.length < 30) {
     target.setCustomValidity('Заголовок должен состоять минимум из 30-ти символов');
   } else {
     target.setCustomValidity('');
-  }
-});
-
-addressInput.addEventListener('invalid', function () {
-  if (addressInput.validity.valueMissing) {
-    addressInput.setCustomValidity('Обязательное поле');
-  } else {
-    addressInput.setCustomValidity('');
   }
 });
 
@@ -375,45 +361,56 @@ priceInput.addEventListener('invalid', function () {
   }
 });
 
-typeSelect.addEventListener('change', function () {
-  getMinPrices();
-});
+typeSelect.addEventListener('change', getMinPrices);
 
 timeinSelect.addEventListener('change', function () {
   synchronizeValue(timeinSelect, timeoutSelect);
 });
 
+timeoutSelect.addEventListener('change', function () {
+  synchronizeValue(timeoutSelect, timeinSelect);
+});
+
+if (roomSelect.value === '1') {
+  capacitySelect.value = roomSelect.value;
+}
+
 roomSelect.addEventListener('change', function () {
   var capacities = capacitySelect.children;
   if (roomSelect.value === '1') {
+    capacitySelect.value = capacities[2].value;
     capacities[0].disabled = true;
     capacities[1].disabled = true;
     capacities[2].disabled = false;
     capacities[3].disabled = true;
   } else if (roomSelect.value === '2') {
+    capacitySelect.value = capacities[1].value;
     capacities[0].disabled = true;
     capacities[1].disabled = false;
     capacities[2].disabled = false;
     capacities[3].disabled = true;
   } else if (roomSelect.value === '3') {
+    capacitySelect.value = capacities[0].value;
     capacities[0].disabled = false;
     capacities[1].disabled = false;
     capacities[2].disabled = false;
     capacities[3].disabled = true;
   } else {
+    capacitySelect.value = capacities[3].value;
     capacities[0].disabled = true;
     capacities[1].disabled = true;
     capacities[2].disabled = true;
     capacities[3].disabled = false;
+
   }
 });
 
 formSubmit.addEventListener('click', function () {
-  getInvalidFieldsBorderRed(form);
+  colorInvalidFieldsRed(form);
 });
 
 formSubmit.addEventListener('keydown', function (evt) {
   if (evt.keyCode === ENTER_KEYCODE) {
-    getInvalidFieldsBorderRed(form);
+    colorInvalidFieldsRed(form);
   }
 });
