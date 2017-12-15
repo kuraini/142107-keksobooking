@@ -1,6 +1,11 @@
 'use strict';
 
 (function () {
+  var CHECKINS = ['12:00', '13:00', '14:00'];
+  var CHECKOUTS = ['12:00', '13:00', '14:00'];
+  var TYPES = ['flat', 'bungalo', 'house', 'palace'];
+  var MIN_PRICES = [1000, 0, 5000, 10000];
+
   var form = document.querySelector('.notice__form');
   var titleInput = form.querySelector('#title');
   var typeSelect = form.querySelector('#type');
@@ -10,28 +15,6 @@
   var roomSelect = form.querySelector('#room_number');
   var capacitySelect = form.querySelector('#capacity');
   var formSubmit = form.querySelector('.form__submit');
-
-  var minPrices = {
-    'flat': 1000,
-    'bungalo': 0,
-    'house': 5000,
-    'palace': 10000
-  };
-
-  function getMinPrices() {
-    if (typeSelect.value === 'flat') {
-      priceInput.setAttribute('min', minPrices.flat);
-    }
-    if (typeSelect.value === 'bungalo') {
-      priceInput.setAttribute('min', minPrices.bungalo);
-    }
-    if (typeSelect.value === 'house') {
-      priceInput.setAttribute('min', minPrices.house);
-    }
-    if (typeSelect.value === 'palace') {
-      priceInput.setAttribute('min', minPrices.palace);
-    }
-  }
 
   titleInput.addEventListener('invalid', function () {
     if (titleInput.validity.tooShort) {
@@ -68,15 +51,9 @@
     }
   });
 
-  typeSelect.addEventListener('change', getMinPrices);
-
-  timeinSelect.addEventListener('change', function () {
-    window.util.synchronizeValue(timeinSelect, timeoutSelect);
-  });
-
-  timeoutSelect.addEventListener('change', function () {
-    window.util.synchronizeValue(timeoutSelect, timeinSelect);
-  });
+  window.synchronizeFields(typeSelect, priceInput, TYPES, MIN_PRICES, window.util.syncValueWithMin);
+  window.synchronizeFields(timeinSelect, timeoutSelect, CHECKINS, CHECKOUTS, window.util.syncValues);
+  window.synchronizeFields(timeoutSelect, timeinSelect, CHECKOUTS, CHECKINS, window.util.syncValues);
 
   if (roomSelect.value === '1') {
     capacitySelect.value = roomSelect.value;
