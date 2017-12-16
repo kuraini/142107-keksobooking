@@ -18,7 +18,6 @@
   var map = document.querySelector('.map');
   map.insertBefore(window.makeCard(window.advertisments[0]), filtersContainer);
 
-
   var mapPinMain = map.querySelector('.map__pin--main');
   var form = document.querySelector('.notice__form');
   var fieldsets = form.querySelectorAll('fieldset');
@@ -49,37 +48,31 @@
 
   function onMapPinClick(evt) {
     var target = evt.target.closest('.map__pin');
+
     if (!target || target.classList.contains('map__pin--main')) {
       return;
     }
 
     getClassActive(target);
+
     var pinId = Number(target.getAttribute('id'));
 
+    window.showCard(pinId);
+
     var popup = map.querySelector('.popup');
-
-    if (popup) {
-      map.removeChild(popup);
-    }
-    map.insertBefore(window.makeCard(window.advertisments[pinId]), filtersContainer);
-
-    var newPopup = map.querySelector('.popup');
-    newPopup.classList.remove('hidden');
-
-    var popupClose = newPopup.querySelector('.popup__close');
+    var popupClose = popup.querySelector('.popup__close');
 
     function onPopupEscPress(e) {
       window.util.isEscEvent(e, closePopup);
     }
 
     function openPopup() {
-      map.insertBefore(window.makeCard(window.advertisments[pinId]), filtersContainer);
-      newPopup.classList.remove('hidden');
+      window.showCard(pinId);
       document.addEventListener('keydown', onPopupEscPress);
     }
 
     function closePopup() {
-      map.removeChild(newPopup);
+      map.removeChild(popup);
       target.classList.remove('map__pin--active');
       document.removeEventListener('keydown', onPopupEscPress);
     }

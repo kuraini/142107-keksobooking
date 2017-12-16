@@ -54,8 +54,11 @@ window.util = (function () {
         arr[i].setAttribute('id', index++);
       }
     },
-    synchronizeValue: function (selected, selectable) {
-      selectable.value = selected.value;
+    syncValues: function (element, value) {
+      element.value = value;
+    },
+    syncValuesWithMin: function (element, value) {
+      element.min = value;
     },
     colorInvalidFieldsRed: function (elem) {
       var elements = elem.querySelectorAll('input, select, textarea');
