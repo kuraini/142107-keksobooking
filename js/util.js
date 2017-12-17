@@ -48,12 +48,6 @@ window.util = (function () {
         arr[i].removeAttribute(attr, attr);
       }
     },
-    addIdAll: function (arr) {
-      var index = 0;
-      for (var i = 0; i < arr.length; i++) {
-        arr[i].setAttribute('id', index++);
-      }
-    },
     syncValues: function (element, value) {
       element.value = value;
     },
@@ -67,6 +61,21 @@ window.util = (function () {
           elements[i].setAttribute('style', 'border-color: red; box-shadow: 0 0 0 1px red;');
         }
       }
+    },
+    createErrorMessage: function (errorMessage) {
+      var node = document.createElement('div');
+      var nodeIcon = document.createElement('span');
+      node.classList.add('server-error');
+      nodeIcon.classList.add('server-error__icon');
+      node.textContent = errorMessage;
+      document.body.insertAdjacentElement('afterbegin', node);
+      node.appendChild(nodeIcon);
+    },
+    deleteErrorMessage: function () {
+      setTimeout(function () {
+        var elem = document.querySelector('.server-error');
+        elem.parentNode.removeChild(elem);
+      }, 4000);
     }
   };
 })();

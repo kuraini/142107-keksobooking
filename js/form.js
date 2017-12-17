@@ -51,7 +51,7 @@
     }
   });
 
-  window.synchronizeFields(typeSelect, priceInput, TYPES, MIN_PRICES, window.util.syncValueWithMin);
+  window.synchronizeFields(typeSelect, priceInput, TYPES, MIN_PRICES, window.util.syncValuesWithMin);
   window.synchronizeFields(timeinSelect, timeoutSelect, CHECKINS, CHECKOUTS, window.util.syncValues);
   window.synchronizeFields(timeoutSelect, timeinSelect, CHECKOUTS, CHECKINS, window.util.syncValues);
 
@@ -95,5 +95,25 @@
 
   formSubmit.addEventListener('keydown', function (evt) {
     window.util.isEscEvent(evt, window.util.colorInvalidFieldsRed(form));
+  });
+
+  function removeStyleInput(elem) {
+    var elements = elem.querySelectorAll('input, select, textarea');
+    window.util.removeAttributeAll(elements, 'style');
+  }
+
+  function succesHandler() {
+    form.reset();
+  }
+
+  function errorHandler(errorMessage) {
+    window.util.createErrorMessage(errorMessage);
+    window.util.deleteErrorMessage();
+  }
+
+  form.addEventListener('submit', function (evt) {
+    evt.preventDefault();
+    removeStyleInput(form);
+    window.backend.save(new FormData(form), succesHandler, errorHandler);
   });
 })();

@@ -1,6 +1,7 @@
 'use strict';
 
 (function () {
+  var PHOTOS_MAX_AMOUNT = 6;
   var mapCardTemplate = document.querySelector('template').content.querySelector('.map__card');
 
   function giveOfferType(card) {
@@ -25,6 +26,8 @@
     var featureItems = cardElement.querySelectorAll('.feature');
     var description = cardElement.querySelector('.popup__pictures').previousElementSibling;
     var avatar = cardElement.querySelector('.popup__avatar');
+    var photosList = cardElement.querySelector('.popup__pictures');
+    var photoFirst = photosList.querySelector('li');
     var offer = card.offer;
 
     function removeItem() {
@@ -42,6 +45,18 @@
       }
     }
 
+    function makePhotos() {
+      photosList.removeChild(photoFirst);
+      for (var i = 0; i < offer.photos.length && i < PHOTOS_MAX_AMOUNT; i++) {
+        var item = document.createElement('li');
+        item.classList.add('picture');
+        var photo = document.createElement('img');
+        photo.setAttribute('src', offer.photos[i]);
+        photosList.appendChild(item);
+        item.appendChild(photo);
+      }
+    }
+
     header.textContent = offer.title;
     address.textContent = offer.address;
     price.innerHTML = offer.price + '&#x20bd;/ночь';
@@ -55,6 +70,7 @@
     makeItem();
     description.textContent = offer.description;
     avatar.setAttribute('src', card.author.avatar);
+    makePhotos();
     cardElement.classList.add('hidden');
 
     return cardElement;
