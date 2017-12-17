@@ -7,28 +7,39 @@
   var MAIN_PIN_TRANSITION = Math.floor((MAIN_PIN_PSEUDO_HEIGHT * 100 / MAIN_PIN_HEIGHT) + MAIN_PIN_HEIGHT_IN_PROCENT);
   var MAP_TOP_LIMIT = 100;
   var MAP_BOTTOM_LIMIT = 500;
-
-  window.advertisments = window.makeAd(8);
-
-  var mapPinsContainer = document.querySelector('.map__pins');
-  var filtersContainer = document.querySelector('.map__filters-container');
-
-  mapPinsContainer.appendChild(window.makePin());
+  var PINS_LIMIT = 3;
 
   var map = document.querySelector('.map');
-  map.insertBefore(window.makeCard(window.advertisments[0]), filtersContainer);
-
+  var mapPinsContainer = document.querySelector('.map__pins');
+  var filtersContainer = document.querySelector('.map__filters-container');
   var mapPinMain = map.querySelector('.map__pin--main');
   var form = document.querySelector('.notice__form');
   var fieldsets = form.querySelectorAll('fieldset');
-  var pins = map.querySelectorAll('button.map__pin:not(.map__pin--main)');
+  var inputAddress = form.querySelector('#address');
+
+  function succesHandler(data) {
+    window.cards = data;
+    mapPinsContainer.appendChild(window.makePins(data));
+    map.insertBefore(window.makeCard(data[0]), filtersContainer);
+  }
+
+  function errorHandler(errorMessage) {
+    window.util.createErrorMessage(errorMessage);
+    window.util.deleteErrorMessage();
+  }
+
+  window.backend.load(succesHandler, errorHandler);
 
   window.util.addAttributeAll(fieldsets, 'disabled');
-  window.util.addIdAll(pins);
 
   function onMapPinMainMouseup() {
+    var pins = map.querySelectorAll('button.map__pin:not(.map__pin--main)');
     map.classList.remove('map--faded');
-    window.util.removeAttributeAll(pins, 'hidden');
+
+    for (var i = 0; i < PINS_LIMIT; i++) {
+      pins[i].removeAttribute('hidden');
+    }
+
     form.classList.remove('notice__form--disabled');
     window.util.removeAttributeAll(fieldsets, 'disabled');
     mapPinMain.removeEventListener('mouseup', onMapPinMainMouseup);
@@ -55,9 +66,10 @@
 
     getClassActive(target);
 
-    var pinId = Number(target.getAttribute('id'));
+    var pins = Array.from(map.querySelectorAll('button.map__pin:not(.map__pin--main)'));
+    var index = pins.indexOf(target);
 
-    window.showCard(pinId);
+    window.showCard(window.cards[index]);
 
     var popup = map.querySelector('.popup');
     var popupClose = popup.querySelector('.popup__close');
@@ -67,7 +79,7 @@
     }
 
     function openPopup() {
-      window.showCard(pinId);
+      window.showCard(window.cards[index]);
       document.addEventListener('keydown', onPopupEscPress);
     }
 
@@ -91,8 +103,6 @@
   }
 
   mapPinsContainer.addEventListener('click', onMapPinClick);
-
-  var inputAddress = form.querySelector('#address');
 
   mapPinMain.addEventListener('mousedown', function (evt) {
     evt.preventDefault();

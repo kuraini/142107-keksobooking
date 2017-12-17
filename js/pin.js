@@ -21,13 +21,13 @@
     return pinElement;
   }
 
-  function makePin() {
+  function makePins(pins) {
     var pin = document.createDocumentFragment();
-    for (var i = 0; i < window.advertisments.length; i++) {
-      pin.appendChild(renderPin(window.advertisments[i]));
+    for (var i = 0; i < pins.length; i++) {
+      pin.appendChild(renderPin(pins[i]));
     }
     return pin;
   }
 
-  window.makePin = makePin;
+  window.makePins = makePins;
 })();
